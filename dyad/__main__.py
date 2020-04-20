@@ -9,9 +9,8 @@ Created on Tue Apr  7 13:05:28 2020
 from fimo_parser.GFF import GFF_Parse
 from databases.cadb.CalbDB import CaDB
 from databases.scdb.ScerDB import ScDB
-
+from interval_tree import Motif_Node
 from dyad_search import UAS
-
 from Bio.Seq import Seq
 import re
 import time
@@ -19,9 +18,10 @@ import pandas as pd
 
 
 
+
 #getting fimo_file
 #fimo_file = sys.argv[1]
-fimo_file = "wg_fimo/400_fimo_ca_0.01p.gff"
+fimo_file = "wg_fimo/400_fimo_sc_0.01p.gff"
 print("extracting fimo hits....")
 ts = time.time()
 fimo = GFF_Parse(fimo_file)
@@ -32,7 +32,7 @@ df_fimo = fimo.dataframe
 
 #selecting the database 
 #database = sys.argv[2]
-database = "cadb"
+database = "scdb"
 
 if database == "scdb":
     db = ScDB()
@@ -59,20 +59,45 @@ names = [full_name for full_name in df_fimo["name"]]
 #getting all sequences
 ts = time.time()
 print("getting sequences.....")
-seq30 = []
-for i in range(len(names)):
-        seq30.append((names[i],Seq(db.getSeqFromPromoter(names[i], 
-                       s_coor[i] - 20 + 600 , e_coor[i] + 20 + 600 ))))
+seq40 = []
 
+
+
+total_scanned_sequence_length = 0
+for name in names:
+    nodes = [] 
+    for row in df_fimo[df_fimo["name"] == name].iterrows():
+        if row[1]["start"] < 20:
+            
+            nodes.append(Motif_Node(0, row[1]["end"] + 20))
+        elif row[1]["end"] >= 380:
+            nodes.append(Motif_Node(row[1]["start"], 400))
+        else:
+            nodes.append(Motif_Node(row[1]["start"] - 20, row[1]["end"] + 20))
+    total_promoter_seq = Motif_Node.decompose(nodes)
+    total_scanned_sequence_length += sum([node.e - node.s for node in total_promoter_seq])
+    for seq in total_promoter_seq:
+        seq40.append((name,Seq(db.getSeqFromPromoter(name, 
+                       seq.s + 600 , seq.e + 600 ))))   
+   
+    
 te = time.time()
 print("done in " + str(te-ts) + "s")
 print("finding palindromes......")
 ts = time.time()
+
+averages = {"C":[], "G":[], "T":[], "A":[]}
+total_p_count = 0
 genes = []
-for name, seq in seq30:
+for name, seq in seq40:
     uas = UAS(name, seq, 2)
+    for key in averages.keys():
+        
+        averages[key].append(seq.count(key)/len(seq))
     if any(uas.pals_in_line):
         try:
+            total_p_count += len(uas.pals_in_line)
+            
             if(uas.get_best_pal().cg_content() >= 35):
                 genes.append((uas, uas.get_best_pal()))
         except AttributeError:
@@ -88,7 +113,7 @@ gene_names = []
 pal_dict = {}
 csv_out = []
 for x,p in genes:
-    print(str(p) + " " + str(p.score))
+    #print(str(p) + " " + str(p.score))
     
     name = db.lookup(Locus_ID = p.name)[0][0]
     
@@ -115,7 +140,10 @@ with open("uas_gene_names.txt", "w") as fo:
     for name in n:
         fo.write(name + "\n")
         
+
 db.close()
+
+
         
 
 

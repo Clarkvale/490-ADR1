@@ -10,9 +10,9 @@ import sqlite3
 
 class ScDB:
     
-    def __init__(self):
+    def __init__(self, path = "databases/scdb/S.cerevisiae_CDS.db"):
         
-        self.connection = sqlite3.connect("databases/scdb/S.cerevisiae_CDS.db")
+        self.connection = sqlite3.connect(path)
         self.cursor = self.connection.cursor()
         
     def close(self):
@@ -51,7 +51,7 @@ class ScDB:
     
      
 if __name__ == "__main__":
-    the_db = ScDB()
+    the_db = ScDB("S.cerevisiae_CDS.db")
     upc2 = the_db.lookup(Gene_ID = "ADH2")[0]
     #print(upc2)
     seqat200 = the_db.getSeqFromPromoter(upc2[1],600,)
