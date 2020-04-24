@@ -15,8 +15,9 @@ import time
 import pandas as pd
 import seaborn as sns
 import numpy as np
-from plotly.graph_objects import *
-import plotly.figure_factory as ff 
+from matplotlib import pyplot as plt
+#from plotly.graph_objects import *
+#import plotly.figure_factory as ff 
 #from plotly.graph_objects.layout import Layout
 
 def main():
@@ -137,14 +138,26 @@ def build_heatmap(df):
                     "Spom": 23}
     df_list = []
     row_dict = {}
-    for i in range(1,len(list(species_dict.keys())[1:])):
+    for i in range(1,len(list(species_dict.keys()))):
         row_dict["Species"] = list(species_dict.keys())[i]
         for gene in set(df["Gene"]):
             row_dict[gene] = np.array(len(df.query(f"Gene == '{gene}' and Species == '{list(species_dict.keys())[i]}'")))
         df_list.append(row_dict.copy())
         row_dict.clear()
     
-    return pd.DataFrame(df_list)
+    df = pd.DataFrame(df_list)
+    df = df.set_index("Species")
+    del df.index.name
+    df = df.astype(float)
+    
+    heat = sns.heatmap(df, yticklabels = list(species_dict.keys())[1:])
+    cluster = sns.clustermap(df,yticklabels = list(species_dict.keys())[1:] )
+    
+    
+    heat.figure.savefig("results/ortho_heatmap.png")
+    cluster.savefig("results/ortho_cluster.png")
+    
+    return df
         
     
 #    data = []

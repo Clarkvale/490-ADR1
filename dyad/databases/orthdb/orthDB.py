@@ -31,7 +31,7 @@ class OrthDB:
             
             self.cursor.execute(f"SELECT {return_q} FROM Promoters WHERE {key} = ?", 
                                 (str(value),))
-            out.append(self.cursor.fetchone())
+            out.append(self.cursor.fetchall())
         
         return out 
     
