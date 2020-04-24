@@ -12,7 +12,7 @@ from math import factorial as fa
 from math import sqrt
 from __main__ import averages as av
 from statistics import mean as m
-from __main__ import total_p_count as observed_count
+from __main__ import unique_palindrome_count as observed_count
 from __main__ import total_scanned_sequence_length as total_length
 import numpy
 
@@ -23,7 +23,7 @@ def Ps(n,Ptf,s):
     return ((fa(n)*Ptf**s)*(1-Ptf)**(n-s))/((fa(n-s))*fa(s))
 
 #getting the sum of probabilities for a palindrome of half-length between 10-15
-#with 0-2 misspair
+#with 0-2 misspairs
 stats_ar  = []
 for n in range(10,16):
     for s in range(n-2, n):

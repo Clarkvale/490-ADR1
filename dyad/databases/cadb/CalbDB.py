@@ -18,11 +18,11 @@ class CaDB:
     def close(self):
         self.cursor.close(); self.connection.close()
       
-    def lookup(self, **kwargs):
+    def lookup(self,return_q = "*", **kwargs):
         out = []
         for key, value in kwargs.items():
             
-            self.cursor.execute(f"SELECT * FROM Promoters WHERE {key} = ?", 
+            self.cursor.execute(f"SELECT {return_q} FROM Promoters WHERE {key} = ?", 
                                 (str(value),))
             out.append(self.cursor.fetchone())
         

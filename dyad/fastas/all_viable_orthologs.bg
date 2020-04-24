@@ -1,0 +1,7 @@
+# 0-order Markov frequencies from file fastas/all_valid_orthologs.fasta
+# seqs: 9442    min: 0    max: 1000    avg: 634.7    sum: 5992972    alph: DNA
+# order 0
+A 3.066e-01
+C 1.934e-01
+G 1.934e-01
+T 3.066e-01
