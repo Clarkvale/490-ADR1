@@ -159,39 +159,6 @@ def build_heatmap(df):
     
     return df
         
-    
-#    data = []
-#    for species in species_dict.keys():
-#        l = []
-#        for gene in set(df["Gene"]):
-#            l.append(len(df.query(f"Gene == '{gene}' and Species == '{species}'")))  
-#        data.append(l)
-#    fig = Figure(data=Heatmap(
-#                   z = data,
-#                   x = df["Gene"].drop_duplicates(),
-#                   y = list(species_dict.keys()),
-#                   hoverongaps = False),
-#                    layout = Layout(
-#                            title='Distribution of Hypothetical SREs',
-#                            autosize=False,
-#                            margin=Margin(
-#                                    l=200,
-#                                    b=200,
-#                                    pad=4),
-#                            xaxis=XAxis(
-#                                    showgrid=False, # remove grid
-#                                    #autotick=False, # custom ticks
-#                                    dtick=1,
-#                                    showticklabels = False# show 1 tick per day
-#                                    ),
-#                            yaxis=YAxis(
-#                                    showgrid=False,   # remove grid
-#                                    #autotick=False,   # custom ticks
-#                                    dtick=1           # show 1 tick per day
-#                                            ),
-#                        ))
-#    fig.show()
-#    return data
 
 if __name__ == "__main__":
     mydata = main()

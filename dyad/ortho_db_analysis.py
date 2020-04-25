@@ -34,5 +34,5 @@ def makebar(species_count):
     plt.xticks(rotation = 70)
     bar = sns.barplot(x = list(species_count.keys()), 
                 y = list(species_count.values(),))
-    bar.figure.savefig("results/num_of_valid_orthogroups_per_species.png")
+    bar.figure.savefig("results/num_of_pals_per_species.png")
     
