@@ -9,7 +9,7 @@ Created on Tue Apr  7 13:05:28 2020
 from fimo_parser.GFF import GFF_Parse
 from databases.cadb.CalbDB import CaDB
 from databases.scdb.ScerDB import ScDB
-from databases.orthdb.OrthDB import OrthDB
+#from databases.orthdb.OrthDB import OrthDB
 from interval_tree import Motif_Node
 from dyad_search import UAS
 from Bio.Seq import Seq
@@ -22,7 +22,7 @@ import pandas as pd
 
 #getting fimo_file
 #fimo_file = sys.argv[1]
-fimo_file = "wg_fimo/400_fimo_ca_0.01p.gff"
+fimo_file = "wg_fimo/400_fimo_sc_0.01p.gff"
 print("extracting fimo hits....")
 ts = time.time()
 fimo = GFF_Parse(fimo_file)
@@ -33,7 +33,7 @@ df_fimo = fimo.dataframe
 
 #selecting the database 
 #database = sys.argv[2]
-database = "cadb"
+database = "scdb"
 
 if database == "scdb":
     db = ScDB()
@@ -67,6 +67,7 @@ seq40 = []
 #Withdrawing sequence coordinates to scan. If the window of 40bp that I draw 
 #around each hit is overlapping with another then I merge the two.
 total_scanned_sequence_length = 0
+
 for name in names:
     nodes = [] 
     for row in df_fimo[df_fimo["name"] == name].iterrows():
@@ -94,6 +95,7 @@ ts = time.time()
 #To find the frequency of each residue
 averages = {"C":[], "G":[], "T":[], "A":[]}
 unique_palindrome_count = 0
+cg_pal_count = 0
 #genes holds all genes with a promoter containing at least one palindrome with
 # a decently high cg content to avoid picking up TATA boxes
 genes = []
@@ -108,9 +110,13 @@ for name, seq in seq40:
             noded_palindromes = [Motif_Node(pal.pos, pal.pos + len(pal)) 
             for pal in uas.pals_in_line]
             unique_palindrome_count += len(Motif_Node.decompose(noded_palindromes))
-            
+            #Now for cg minimal palidromes
+            cg_pals = [Motif_Node(pal.pos, pal.pos + len(pal)) for 
+                       pal in uas.pals_in_line if pal.cg_content() >= 35]
+            cg_pal_count += len(Motif_Node.decompose(cg_pals))
             if(uas.get_best_pal().cg_content() >= 35):
                 genes.append((uas, uas.get_best_pal()))
+                
         except AttributeError:
             print(uas)
             pass

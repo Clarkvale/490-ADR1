@@ -65,11 +65,11 @@ def main():
     print("done in " + str(te-ts) + "s")
     
     #look for palindromes from each sequence
-    genes = _find_pals(seq40)
+    genes,gene_count_dict = _find_pals(seq40)
     #export everything
     df = export(genes)
     #build heatmap
-    return df
+    return (df,gene_count_dict)
 def _find_pals(seq40):
     print("finding palindromes......")
     ts = time.time()
@@ -79,6 +79,7 @@ def _find_pals(seq40):
     #genes holds all genes with a promoter containing at least one palindrome with
     # a decently high cg content to avoid picking up TATA boxes
     genes = []
+    gene_count_dict = {}
     for name, seq in seq40:
         #handling odd sequence length
         if len(seq40) % 2 != 0:
@@ -97,12 +98,16 @@ def _find_pals(seq40):
                 
                 if(uas.get_best_pal().cg_content() >= 35):
                     genes.append((uas, uas.get_best_pal()))
+                    if uas.name.split("|")[1] in gene_count_dict.keys():
+                        gene_count_dict[uas.name.split("|")[1]] += 1
+                    else:
+                        gene_count_dict[uas.name.split("|")[1]] = 1
             except AttributeError:
                 print(uas)
                 pass
     te = time.time()
     print("done in " + str(te-ts) + "s")
-    return genes
+    return (genes,gene_count_dict)
 
 def export(genes):
     n = set([x.name for x,y in genes])
@@ -161,7 +166,7 @@ def build_heatmap(df):
         
 
 if __name__ == "__main__":
-    mydata = main()
+    mydata, gene_count_dict = main()
     df = build_heatmap(mydata)
     
     
